@@ -17154,16 +17154,16 @@
 </phrase>
 <phrase>
   id: LANG_SWITCH_FIRMWARE
-  desc: Shutdown menu item
+  desc: OS switch menu item
   user: core
   <source>
-    *: "Reboot to Stock Firmware"
+    *: "Go to Stock OS"
   </source>
   <dest>
-    *: "Reboot to Stock Firmware"
+    *: "Go to Stock OS"
   </dest>
   <voice>
-    *: "Reboot to Stock Firmware"
+    *: "Go to Stock OS"
   </voice>
 </phrase>
 <phrase>
