@@ -44,8 +44,8 @@ import android.graphics.Paint;
 public class RockboxFramebuffer extends SurfaceView 
                                  implements SurfaceHolder.Callback
 {
-    private final DisplayMetrics metrics;
-    private final ViewConfiguration view_config;
+    private DisplayMetrics metrics;
+    private ViewConfiguration view_config;
     private Bitmap btm;
     private final Paint sharpPaint = new Paint();
 
@@ -86,6 +86,25 @@ public class RockboxFramebuffer extends SurfaceView
     public RockboxFramebuffer(Context c)
     {
         super(c);
+        init(c);
+    }
+    
+    /* Constructor required for XML inflation */
+    public RockboxFramebuffer(Context c, android.util.AttributeSet attrs)
+    {
+        super(c, attrs);
+        init(c);
+    }
+    
+    /* Constructor required for XML inflation with style */
+    public RockboxFramebuffer(Context c, android.util.AttributeSet attrs, int defStyleAttr)
+    {
+        super(c, attrs, defStyleAttr);
+        init(c);
+    }
+    
+    private void init(Context c)
+    {
         metrics = c.getResources().getDisplayMetrics();
         view_config = ViewConfiguration.get(c);
         getHolder().addCallback(this);
