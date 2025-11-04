@@ -316,3 +316,12 @@ __pycache__
 
 # /utils/time-sync/
 /utils/time-sync/time-sync
+
+# Exclude large binary files
+libs_andrd/
+libs.tar.gz
+libs/
+*.apk
+rockbox-clickwheel-unified.apk
+build-manual/
+

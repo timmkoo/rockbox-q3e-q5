@@ -25,15 +25,28 @@ package org.rockbox;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
+
+import org.rockbox.widgets.ClickwheelView;
 
 public class RockboxActivity extends Activity 
 {
+    private static final String PREFS_NAME = "RockboxPrefs";
+    private static final String PREF_CLICKWHEEL_MODE = "clickwheel_mode";
+    
+    private RockboxFramebuffer framebuffer;
+    private ClickwheelView clickwheel;
+    private Button toggleButton;
+    private boolean clickwheelMode = true;
+    
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) 
@@ -42,6 +55,11 @@ public class RockboxActivity extends Activity
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                              WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
+        // Load saved control mode preference
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        clickwheelMode = prefs.getBoolean(PREF_CLICKWHEEL_MODE, true);
+        
         Intent intent = new Intent(this, RockboxService.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.putExtra("callback", new ResultReceiver(new Handler(getMainLooper())) {
@@ -60,14 +78,11 @@ public class RockboxActivity extends Activity
             @Override
             protected void onReceiveResult(final int resultCode, final Bundle resultData)
             {
-                RockboxFramebuffer fb;
                 switch (resultCode) {
                     case RockboxService.RESULT_INVOKING_MAIN:
                         if (loadingdialog != null)
                             loadingdialog.dismiss();
-                        fb = new RockboxFramebuffer(RockboxActivity.this);
-                        setContentView(fb);
-                        fb.requestFocus();
+                        setupLayout();
                         break;
                     case RockboxService.RESULT_LIB_LOAD_PROGRESS:
                         if (loadingdialog == null)
@@ -82,9 +97,7 @@ public class RockboxActivity extends Activity
                     case RockboxService.RESULT_SERVICE_RUNNING:
                         if (!unzip) /* defer to RESULT_INVOKING_MAIN */
                         {
-                            fb = new RockboxFramebuffer(RockboxActivity.this);
-                            setContentView(fb);
-                            fb.requestFocus();
+                            setupLayout();
                         }
                         setServiceActivity(true);
                         break;
@@ -99,6 +112,57 @@ public class RockboxActivity extends Activity
         });
         startService(intent);
     }
+    
+    private void setupLayout() {
+        setContentView(R.layout.main);
+        
+        framebuffer = (RockboxFramebuffer) findViewById(R.id.rockbox_framebuffer);
+        clickwheel = (ClickwheelView) findViewById(R.id.clickwheel);
+        toggleButton = (Button) findViewById(R.id.toggle_control_mode);
+        
+        if (framebuffer != null) {
+            framebuffer.requestFocus();
+        }
+        
+        // Set up toggle button
+        if (toggleButton != null) {
+            toggleButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toggleControlMode();
+                }
+            });
+        }
+        
+        // Apply saved control mode
+        updateControlMode();
+    }
+    
+    private void toggleControlMode() {
+        clickwheelMode = !clickwheelMode;
+        
+        // Save preference
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(PREF_CLICKWHEEL_MODE, clickwheelMode);
+        editor.commit();
+        
+        updateControlMode();
+        
+        // Show toast to inform user
+        String mode = clickwheelMode ? "Clickwheel Mode" : "Standard Touch Mode";
+        Toast.makeText(this, mode, Toast.LENGTH_SHORT).show();
+    }
+    
+    private void updateControlMode() {
+        if (framebuffer != null) {
+            framebuffer.setClickwheelMode(clickwheelMode);
+        }
+        
+        if (clickwheel != null) {
+            clickwheel.setVisibility(clickwheelMode ? View.VISIBLE : View.GONE);
+        }
+    }
 
     private void setServiceActivity(boolean set)
     {
@@ -110,9 +174,12 @@ public class RockboxActivity extends Activity
     public void onResume()
     {
         super.onResume();
-        RockboxFramebuffer fb = new RockboxFramebuffer(this);
-        setContentView(fb);
-        fb.requestFocus();
+        if (framebuffer == null) {
+            setupLayout();
+        }
+        if (framebuffer != null) {
+            framebuffer.requestFocus();
+        }
         setVisible(true);
         setServiceActivity(true);
     }

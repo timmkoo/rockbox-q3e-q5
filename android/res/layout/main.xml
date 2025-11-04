@@ -1,6 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-</LinearLayout>
+    android:layout_height="fill_parent"
+    android:background="#FF000000">
+    
+    <!-- Top area: Rockbox display with 4:3 aspect ratio -->
+    <org.rockbox.widgets.AspectRatioFrameLayout
+        android:id="@+id/display_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#FF000000">
+        
+        <org.rockbox.RockboxFramebuffer
+            android:id="@+id/rockbox_framebuffer"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+    </org.rockbox.widgets.AspectRatioFrameLayout>
+    
+    <!-- Bottom area: Virtual clickwheel (fills remaining space) -->
+    <org.rockbox.widgets.ClickwheelView
+        android:id="@+id/clickwheel"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/display_container"
+        android:layout_alignParentBottom="true"
+        android:background="#FF1A1A1A"
+        android:visibility="visible" />
+    
+    <!-- Toggle button (top-right corner, overlays display) -->
+    <Button
+        android:id="@+id/toggle_control_mode"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="8dp"
+        android:background="#88333333"
+        android:text="⚙"
+        android:textSize="24sp"
+        android:textColor="#FFFFFFFF"
+        android:alpha="0.7" />
+        
+</RelativeLayout>

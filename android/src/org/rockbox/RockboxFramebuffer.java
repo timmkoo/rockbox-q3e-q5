@@ -63,6 +63,7 @@ public class RockboxFramebuffer extends SurfaceView
     public static boolean isNotRoot = false;
     private boolean justCreated = true;
     private boolean centerRepeat = false;
+    private boolean clickwheelMode = true; // True = clickwheel mode, False = standard touch mode
     private Runnable centerLongPressRunnable = new Runnable() {
         @Override
         public void run() {
@@ -140,8 +141,18 @@ public class RockboxFramebuffer extends SurfaceView
         update(framebuffer);
     }
 
+    public void setClickwheelMode(boolean enabled) {
+        clickwheelMode = enabled;
+        Log.d("RockboxFramebuffer", "Clickwheel mode: " + (enabled ? "enabled" : "disabled"));
+    }
+
     public boolean onTouchEvent(MotionEvent me)
     {
+        // In clickwheel mode, disable touch events on the display
+        if (clickwheelMode) {
+            return false;
+        }
+        
         // Check resolution mode for proper scaling
         float scaleX, scaleY;
         
