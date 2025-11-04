@@ -222,7 +222,9 @@ public class RockboxFramebuffer extends SurfaceView
                 centerRepeat = false;
                 Log.d("RockboxButton", "Putting device to sleep");
                 try {
-                    powerManager.goToSleep(SystemClock.uptimeMillis());
+                    // Use reflection for compatibility with different Android versions
+                    java.lang.reflect.Method method = powerManager.getClass().getMethod("goToSleep", long.class);
+                    method.invoke(powerManager, SystemClock.uptimeMillis());
                     Log.d("RockboxButton", "Device put to sleep");
                 } catch (Exception e) {
                     Log.e("RockboxButton", "Failed to put device to sleep: " + e.getMessage());
